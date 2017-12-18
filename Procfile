@@ -1,0 +1,1 @@
+web: java -jar target/notif-immo-0.1-SNAPSHOT.jar
