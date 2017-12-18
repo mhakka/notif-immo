@@ -46,9 +46,6 @@
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -61,7 +58,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
+                            <classpathPrefix>dependency/</classpathPrefix>
                             <mainClass>com.mha.notif.immo.Run</mainClass>
                         </manifest>
                     </archive>
