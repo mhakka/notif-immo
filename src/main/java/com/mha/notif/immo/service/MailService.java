@@ -6,6 +6,14 @@
 package com.mha.notif.immo.service;
 
 import com.mha.notif.immo.model.Annonce;
+import com.sendgrid.Content;
+import com.sendgrid.Email;
+import com.sendgrid.Mail;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
@@ -49,6 +57,27 @@ public class MailService {
     }
 
     private void send(String subject, String body) {
+        final Email from = new Email("app83424546@heroku.com");
+        final Email to = new Email("m.hakka@outlook.com");
+        Content content = new Content("text/html", body);
+        Mail mail = new Mail(from, subject, to, content);
+        SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+        Request request = new Request();
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
+            logger.info("Mail status response: {}",response.getStatusCode());
+            logger.info("Mail response body: {}",response.getBody());
+            logger.info("Mail response headers",response.getHeaders());
+        } catch (IOException ex) {
+            logger.error("Error sending mail with SendGrid",ex);
+        }
+
+    }
+
+    private void sendJavaMail(String subject, String body) {
 
         final String fromEmail = "m.hakka@outlook.com";
         final String password = "p5ld2vm";
