@@ -41,7 +41,7 @@ public class MailService {
     private static final String NEW_ANNOUNCEMENT_SUBJECT = "Nouvelle(s) annonce(s) SeLoger";
 
     public void notifyServiceStart() {
-        send(SERVICE_STARTED_SUBJECT, "Service démmaré !");
+        send(SERVICE_STARTED_SUBJECT, "Service démarré !");
     }
 
     public void notifyServiceStop() {
