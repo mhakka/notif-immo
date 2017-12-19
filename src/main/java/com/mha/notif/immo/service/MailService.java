@@ -80,7 +80,7 @@ public class MailService {
     private void sendJavaMail(String subject, String body) {
 
         final String fromEmail = "m.hakka@outlook.com";
-        final String password = "p5ld2vm";
+        final String password = "";
         final String toEmail = "m.hakka@outlook.com";
 
         Properties props = System.getProperties();
