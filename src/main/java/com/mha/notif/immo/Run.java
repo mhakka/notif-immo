@@ -5,10 +5,12 @@
  */
 package com.mha.notif.immo;
 
+import com.mha.notif.immo.controller.SampleController;
 import com.mha.notif.immo.service.SeLogerClientService;
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
 
 /**
  *
@@ -23,6 +25,7 @@ public class Run {
         
         Logger logger = LoggerFactory.getLogger(Run.class);
         logger.info("Program started");
+        SpringApplication.run(SampleController.class, args);
         
         SeLogerClientService seLogerClientService = new SeLogerClientService();
         seLogerClientService.start();
