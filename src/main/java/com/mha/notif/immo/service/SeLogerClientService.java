@@ -26,14 +26,14 @@ public class SeLogerClientService {
     private static final String BASE_URL = "http://ws.seloger.com";
     private static final String SEARCH_URL = BASE_URL + "/search.xml?ci=750109,750110,750111,750119,750120"
             + "&idtt=1&idtypebien=1,2&nb_pieces=2&pxmax=1060&surfacemin=30&tri=d_dt_crea";
-    
+
     private final MailService mailService = new MailService();
-    
+
     private Date lastAnnonce;
 
     public void start() {
         mailService.notifyServiceStart();
-        
+
         this.lastAnnonce = new Date();
         Client client = Client.create();
         WebResource webResource = client.resource(SEARCH_URL);
@@ -41,13 +41,28 @@ public class SeLogerClientService {
         Recherche output;
 
         while (true) {
-            response = webResource.accept("application/xml")
+            
+            //Pause
+            try {
+                Thread.sleep(60000);
+            } catch (Exception e) {
+                logger.error("thread sleep error", e);
+            }
+            
+            // SeLoger request
+            try {
+                response = webResource.accept("application/xml")
                     .get(ClientResponse.class);
+            } catch (Exception ex) {
+                logger.error("Failed to execute request to {}", SEARCH_URL, ex);
+                continue;
+            }
+                    
             logger.info("Status: {}", response.getStatus());
 
             if (response.getStatus() != 200) {
                 logger.error("Failed : HTTP error code : {}", response.getStatus());
-                return;
+                continue;
             }
 
             output = response.getEntity(Recherche.class);
@@ -65,16 +80,10 @@ public class SeLogerClientService {
                 //Send new Annonces by email            
                 logger.info(">>>>>>>>>>>>>>>>>> {} notification(s) to send", notification.size());
                 mailService.notifyNewAnnouncement(notification);
-            }           
-            
-            //Pause
-            try {
-                Thread.sleep(60000);
-            } catch (Exception e) {
-                logger.error("thread sleep error",e);
             }
+          
         }
-        
+
     }
 
 }
