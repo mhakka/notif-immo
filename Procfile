@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar target/notif-immo-0.1-SNAPSHOT.jar
+web: java -jar target/notif-immo-0.1-SNAPSHOT.jar
