@@ -72,7 +72,7 @@ public class SeLogerClientService {
             List<Annonce> notification = output.getAnnonces().stream()
                     .filter(annonce -> annonce.getDtCreation().after(lastAnnonce))
                     .collect(Collectors.toList());
-
+            //set last annonce date
             lastAnnonce = output.getAnnonces().stream().map(a -> a.getDtCreation()).max(Date::compareTo).get();
             logger.info("Date of last annonce: {}", lastAnnonce);
 
