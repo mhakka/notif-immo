@@ -30,6 +30,7 @@ public class SeLogerClientService {
     private final MailService mailService = new MailService();
 
     private Date lastAnnonce;
+    private Recherche searchResponse;
 
     public void start() {
         mailService.notifyServiceStart();
@@ -38,8 +39,7 @@ public class SeLogerClientService {
         Client client = Client.create();
         WebResource webResource = client.resource(SEARCH_URL);
         ClientResponse response;
-        Recherche output;
-
+        
         while (true) {
             
             //Pause
@@ -65,15 +65,15 @@ public class SeLogerClientService {
                 continue;
             }
 
-            output = response.getEntity(Recherche.class);
-            logger.info("Number of announcements found: {}", output.getNbTrouvees());
-            logger.info("Number of announcements treated: {}", output.getAnnonces().size());
+            searchResponse = response.getEntity(Recherche.class);
+            logger.info("Number of announcements found: {}", searchResponse.getNbTrouvees());
+            logger.info("Number of announcements treated: {}", searchResponse.getAnnonces().size());
 
-            List<Annonce> notification = output.getAnnonces().stream()
+            List<Annonce> notification = searchResponse.getAnnonces().stream()
                     .filter(annonce -> annonce.getDtCreation().after(lastAnnonce))
                     .collect(Collectors.toList());
             //set last annonce date
-            lastAnnonce = output.getAnnonces().stream().map(a -> a.getDtCreation()).max(Date::compareTo).get();
+            lastAnnonce = searchResponse.getAnnonces().stream().map(a -> a.getDtCreation()).max(Date::compareTo).get();
             logger.info("Date of last annonce: {}", lastAnnonce);
 
             if (!notification.isEmpty()) {

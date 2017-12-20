@@ -6,7 +6,6 @@
 package com.mha.notif.immo;
 
 import com.mha.notif.immo.service.SeLogerClientService;
-import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
