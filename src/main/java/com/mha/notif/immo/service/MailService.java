@@ -57,7 +57,7 @@ public class MailService {
     }
 
     private void send(String subject, String body) {
-        final Email from = new Email("app83424546@heroku.com");
+        final Email from = new Email("app83424546@heroku.com", "Notif immo");
         final Email to = new Email("m.hakka@outlook.com");
         Content content = new Content("text/html", body);
         Mail mail = new Mail(from, subject, to, content);
