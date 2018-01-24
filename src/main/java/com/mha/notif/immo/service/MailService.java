@@ -63,7 +63,7 @@ public class MailService {
             if (!StringUtils.isBlank(annonce.getLatitude()) && !StringUtils.isBlank(annonce.getLongitude())) {
                 body += "Position: <a href= 'https://www.google.com/maps/?q="+ annonce.getLatitude()+","+ annonce.getLongitude()+"'>Lien Google Map</a><br>";
             }
-            body += "<br>";
+            body += "<br><hr>";
         }
         send(NEW_ANNOUNCEMENT_SUBJECT, body);
     }
