@@ -25,6 +25,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,18 @@ public class MailService {
     public void notifyNewAnnouncement(List<Annonce> notifications) {
         String body = "";
         for (Annonce annonce : notifications) {
-            body += annonce.getPermaLien() + "<br>";
+            body += "<a href= '" + annonce.getPermaLien() + "'>" + annonce.getPermaLien() + "</a><br>";
+            body += "Agence: " + annonce.getContact().getNom() + "<br>";
+            body += "Titre: " + annonce.getTitre() + "<br>";
+            body += "Descriptif: <p>" + annonce.getDescriptif() + "</p><br>";
+            body += "Surface: " + annonce.getSurface() + " " + annonce.getSurfaceUnite() + "<br>";
+            body += "Ville: " + annonce.getVille() + "<br>";
+            body += "Code Postal: " + annonce.getCp() + "<br>";
+            body += "Prix: " + annonce.getPrix() + " " + annonce.getPrixUnite() + "<br>";
+            if (!StringUtils.isBlank(annonce.getLatitude()) && !StringUtils.isBlank(annonce.getLongitude())) {
+                body += "Position: <a href= 'https://www.google.com/maps/?q="+ annonce.getLatitude()+","+ annonce.getLongitude()+"'>Lien Google Map</a><br>";
+            }
+            body += "<br>";
         }
         send(NEW_ANNOUNCEMENT_SUBJECT, body);
     }
@@ -68,11 +80,11 @@ public class MailService {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             Response response = sg.api(request);
-            logger.info("Mail status response: {}",response.getStatusCode());
-            logger.info("Mail response body: {}",response.getBody());
-            logger.info("Mail response headers",response.getHeaders());
+            logger.info("Mail status response: {}", response.getStatusCode());
+            logger.info("Mail response body: {}", response.getBody());
+            logger.info("Mail response headers", response.getHeaders());
         } catch (IOException ex) {
-            logger.error("Error sending mail with SendGrid",ex);
+            logger.error("Error sending mail with SendGrid", ex);
         }
 
     }

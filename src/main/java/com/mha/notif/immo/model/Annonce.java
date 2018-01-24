@@ -20,6 +20,19 @@ public class Annonce {
     private String permaLien;
     private Date dtFraicheur;
     private Date dtCreation;
+    private String titre;
+    private String libelle;
+    private String descriptif;
+    private String prix;
+    private String prixUnite;
+    private String surface;
+    private String surfaceUnite;
+    private String cp;
+    private String codeInsee;
+    private String ville;
+    private String latitude;
+    private String longitude;
+    private Contact contact;
 
     public String getIdAnnonce() {
         return idAnnonce;
@@ -56,7 +69,122 @@ public class Annonce {
     public void setDtCreation(Date dtCreation) {
         this.dtCreation = dtCreation;
     }
+
+    public String getTitre() {
+        return titre;
+    }
     
+    @XmlElement
+    public void setTitre(String titre) {
+        this.titre = titre;
+    }
+
+    public String getLibelle() {
+        return libelle;
+    }
     
+    @XmlElement
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
+    public String getDescriptif() {
+        return descriptif;
+    }
+    
+    @XmlElement
+    public void setDescriptif(String descriptif) {
+        this.descriptif = descriptif;
+    }
+
+    public String getPrix() {
+        return prix;
+    }
+
+    @XmlElement
+    public void setPrix(String prix) {
+        this.prix = prix;
+    }
+
+    public String getPrixUnite() {
+        return prixUnite;
+    }
+    
+    @XmlElement
+    public void setPrixUnite(String prixUnite) {
+        this.prixUnite = prixUnite;
+    }
+
+    public String getSurface() {
+        return surface;
+    }
+    
+    @XmlElement
+    public void setSurface(String surface) {
+        this.surface = surface;
+    }
+
+    public String getSurfaceUnite() {
+        return surfaceUnite;
+    }
+    
+    @XmlElement
+    public void setSurfaceUnite(String surfaceUnite) {
+        this.surfaceUnite = surfaceUnite;
+    }
+
+    public String getCp() {
+        return cp;
+    }
+    
+    @XmlElement
+    public void setCp(String cp) {
+        this.cp = cp;
+    }
+
+    public String getCodeInsee() {
+        return codeInsee;
+    }
+    
+    @XmlElement
+    public void setCodeInsee(String codeInsee) {
+        this.codeInsee = codeInsee;
+    }
+
+    public String getVille() {
+        return ville;
+    }
+    
+    @XmlElement
+    public void setVille(String ville) {
+        this.ville = ville;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+    
+    @XmlElement
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+    
+    @XmlElement
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+    
+    @XmlElement
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
     
 }
