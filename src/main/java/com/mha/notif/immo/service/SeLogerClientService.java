@@ -70,7 +70,7 @@ public class SeLogerClientService {
             logger.info("Number of announcements treated: {}", searchResponse.getAnnonces().size());
 
             List<Annonce> notification = searchResponse.getAnnonces().stream()
-                    .filter(annonce -> annonce.getDtCreation().after(lastAnnonce))
+                    .filter(annonce -> annonce.getDtCreation().after(lastAnnonce) || annonce.getDtCreation().equals(lastAnnonce))
                     .collect(Collectors.toList());
             //set last annonce date
             lastAnnonce = searchResponse.getAnnonces().stream().map(a -> a.getDtCreation()).max(Date::compareTo).get();
