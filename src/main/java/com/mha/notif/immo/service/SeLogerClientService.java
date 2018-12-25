@@ -10,6 +10,7 @@ import com.mha.notif.immo.model.Recherche;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,34 +31,36 @@ public class SeLogerClientService {
     private final MailService mailService = new MailService();
 
     private Date lastAnnonce;
+    private List<String> lastAnnoncesIds;
     private Recherche searchResponse;
 
     public void start() {
         mailService.notifyServiceStart();
 
         this.lastAnnonce = new Date();
+        this.lastAnnoncesIds = new ArrayList<>();
         Client client = Client.create();
         WebResource webResource = client.resource(SEARCH_URL);
         ClientResponse response;
-        
+
         while (true) {
-            
+
             //Pause
             try {
                 Thread.sleep(60000);
             } catch (Exception e) {
                 logger.error("thread sleep error", e);
             }
-            
+
             // SeLoger request
             try {
                 response = webResource.accept("application/xml")
-                    .get(ClientResponse.class);
+                        .get(ClientResponse.class);
             } catch (Exception ex) {
                 logger.error("Failed to execute request to {}", SEARCH_URL, ex);
                 continue;
             }
-                    
+
             logger.info("Status: {}", response.getStatus());
 
             if (response.getStatus() != 200) {
@@ -70,18 +73,26 @@ public class SeLogerClientService {
             logger.info("Number of announcements treated: {}", searchResponse.getAnnonces().size());
 
             List<Annonce> notification = searchResponse.getAnnonces().stream()
-                    .filter(annonce -> annonce.getDtCreation().after(lastAnnonce))
+                    .filter(annonce -> annonce.getDtCreation().after(lastAnnonce)
+                            || (annonce.getDtCreation().equals(lastAnnonce)
+                            && !lastAnnoncesIds.contains(annonce.getIdAnnonce())))
                     .collect(Collectors.toList());
             //set last annonce date
-            lastAnnonce = searchResponse.getAnnonces().stream().map(a -> a.getDtCreation()).max(Date::compareTo).get();
+            lastAnnonce = searchResponse.getAnnonces().stream()
+                    .map(a -> a.getDtCreation())
+                    .max(Date::compareTo).get();
             logger.info("Date of last annonce: {}", lastAnnonce);
+            //set last Ids
+            this.lastAnnoncesIds = searchResponse.getAnnonces().stream()
+                    .map(a -> a.getIdAnnonce())
+                    .collect(Collectors.toList());
 
             if (!notification.isEmpty()) {
                 //Send new Annonces by email            
                 logger.info(">>>>>>>>>>>>>>>>>> {} notification(s) to send", notification.size());
                 mailService.notifyNewAnnouncement(notification);
             }
-          
+
         }
 
     }
