@@ -39,7 +39,7 @@ public class MailService {
 
     private static final String SERVICE_STARTED_SUBJECT = "Démarrage du service de récupèration des annonces SeLoger";
     private static final String SERVICE_STOPED_SUBJECT = "Arrêt du service de récupèration des annonces SeLoger";
-    private static final String NEW_ANNOUNCEMENT_SUBJECT = "Nouvelle(s) annonce(s) SeLoger";
+    private static final String NEW_ANNOUNCEMENT_SUBJECT = " Nouvelle(s) annonce(s) SeLoger";
 
     public void notifyServiceStart() {
         send(SERVICE_STARTED_SUBJECT, "Service démarré !");
@@ -65,7 +65,7 @@ public class MailService {
             }
             body += "<br><hr>";
         }
-        send(NEW_ANNOUNCEMENT_SUBJECT, body);
+        send(notifications.size() + NEW_ANNOUNCEMENT_SUBJECT, body);
     }
 
     private void send(String subject, String body) {
