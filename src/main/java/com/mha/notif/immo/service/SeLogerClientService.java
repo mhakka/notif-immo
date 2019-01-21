@@ -35,7 +35,8 @@ public class SeLogerClientService {
     private Recherche searchResponse;
 
     public void start() {
-        mailService.notifyServiceStart();
+        logger.info("Starting the SeLoger ads retrieval service");
+        //mailService.notifyServiceStart();
 
         this.lastAnnonce = new Date();
         this.lastAnnoncesIds = new ArrayList<>();
