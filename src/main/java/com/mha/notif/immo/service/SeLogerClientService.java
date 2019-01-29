@@ -25,7 +25,7 @@ public class SeLogerClientService {
 
     private final Logger logger = LoggerFactory.getLogger(SeLogerClientService.class);
     private static final String BASE_URL = "http://ws.seloger.com";
-    private static final String SEARCH_URL = BASE_URL + "/search.xml?ci=750109,750110,750111,750119,750120,750103"
+    private static final String SEARCH_URL = BASE_URL + "/search.xml?ci=750110,750111,750103"
             + "&idtt=1&idtypebien=1,2&nb_pieces=2&pxmax=1200&surfacemin=30&tri=d_dt_crea";
 
     private final MailService mailService = new MailService();
