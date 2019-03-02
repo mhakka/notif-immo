@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.mha.notif.immo.service;
 
 import com.mha.notif.immo.model.Annonce;
@@ -16,19 +12,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Service;
 
-/**
- *
- * @author mehdi
- */
-public class SeLogerClientService {
+@Service
+public class SeLogerClientService implements CommandLineRunner {
 
     private final Logger logger = LoggerFactory.getLogger(SeLogerClientService.class);
     private static final String BASE_URL = "http://ws.seloger.com";
     private static final String SEARCH_URL = BASE_URL + "/search.xml?ci=750110,750111,750103"
             + "&idtt=1&idtypebien=1,2&nb_pieces=2&pxmax=1200&surfacemin=30&tri=d_dt_crea";
-
-    private final MailService mailService = new MailService();
+    
+    @Autowired
+    private MailService mailService;
 
     private Date lastAnnonce;
     private List<String> lastAnnoncesIds;
@@ -36,7 +33,7 @@ public class SeLogerClientService {
 
     public void start() {
         logger.info("Starting the SeLoger ads retrieval service");
-        //mailService.notifyServiceStart();
+        mailService.notifyServiceStart();
 
         this.lastAnnonce = new Date();
         this.lastAnnoncesIds = new ArrayList<>();
@@ -96,6 +93,11 @@ public class SeLogerClientService {
 
         }
 
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        this.start();
     }
 
 }
