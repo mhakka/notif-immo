@@ -21,10 +21,10 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class MailService {
@@ -54,7 +54,7 @@ public class MailService {
             body += "Ville: " + annonce.getVille() + "<br>";
             body += "Code Postal: " + annonce.getCp() + "<br>";
             body += "Prix: " + annonce.getPrix() + " " + annonce.getPrixUnite() + "<br>";
-            if (!StringUtils.isBlank(annonce.getLatitude()) && !StringUtils.isBlank(annonce.getLongitude())) {
+            if (!StringUtils.isEmpty(annonce.getLatitude()) && !StringUtils.isEmpty(annonce.getLongitude())) {
                 body += "Position: <a href= 'https://www.google.com/maps/?q="+ annonce.getLatitude()+","+ annonce.getLongitude()+"'>Lien Google Map</a><br>";
             }
             body += "<br><hr>";
