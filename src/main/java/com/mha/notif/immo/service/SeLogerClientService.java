@@ -28,19 +28,16 @@ public class SeLogerClientService implements CommandLineRunner {
     @Autowired
     private MailService mailService;
 
-    private Date lastAnnonceDatetime;
-    private List<String> lastAnnoncesIds;
-    private Recherche searchResponse;
-
     public void start() {
-        //logger.info("Starting the SeLoger ads retrieval service");
-        mailService.notifyServiceStart();
-
-        this.lastAnnonceDatetime = new Date();
-        this.lastAnnoncesIds = new ArrayList<>();
+        logger.info("Starting the SeLoger ads retrieval service");
+        //mailService.notifyServiceStart();
+        
+        logger.info("#### First call to SeLoger Web Service... ####");
+        List<String> lastAnnouncementsIds = fetchAnnouncements(SEARCH_URL).stream()
+                .map(a -> a.getIdAnnonce())
+                .collect(Collectors.toList());
 
         while (true) {
-
             //Pause
             try {
                 Thread.sleep(60000);
@@ -48,49 +45,15 @@ public class SeLogerClientService implements CommandLineRunner {
                 logger.error("thread sleep error", e);
             }
             
-            logger.info(">>>>>>>>>>>> Call to SeLoger Web Service... <<<<<<<<<<<<");
-            boolean moreResult = true;
-            List<Annonce> allAnnouncements = new ArrayList<>();
-            String request = SEARCH_URL;
-            int responseNbr = 0;
-            while (moreResult) {
-                // SeLoger request
-                ResponseEntity<Recherche> response = restTemplate
-                        .exchange(request, HttpMethod.GET, null, Recherche.class);
-
-                logger.info("Response Status: {}", response.getStatusCodeValue());
-                if (!response.getStatusCode().is2xxSuccessful()) {
-                    logger.error("Failed : HTTP error code : {}", response.getStatusCodeValue());
-                    break;
-                }
-                
-                logger.info("Response n° {}:", ++responseNbr);
-                searchResponse = response.getBody();
-                logger.info("{} announcements retrieved from total of {}", 
-                        searchResponse.getAnnonces().size(), 
-                        searchResponse.getNbTrouvees());
-
-                allAnnouncements.addAll(searchResponse.getAnnonces());
-                
-                if (searchResponse.getPageSuivante() == null) 
-                    moreResult = false;
-                
-                request = searchResponse.getPageSuivante();
-            }
-            
-            if (allAnnouncements.isEmpty()) 
+            logger.info("#### Call to SeLoger Web Service... ####");
+            List<Annonce> announcements = fetchAnnouncements(SEARCH_URL);
+            logger.info("Total retrieved announcements: {}", announcements.size());
+            if (announcements.isEmpty()) {
                 continue;
-
-            //filter announcements by date of last announcement
-            List<Annonce> notification = filterAdsByDatetime(allAnnouncements, lastAnnonceDatetime);
-
-            //set last annonce date
-            lastAnnonceDatetime = searchResponse.getAnnonces().stream()
-                    .map(a -> a.getDtCreation())
-                    .max(Date::compareTo).get();
-            logger.info("Date of last annonce: {}", lastAnnonceDatetime);
+            }
+            List<Annonce> notification = filterAnnouncementsExcludingByIds(announcements, lastAnnouncementsIds);
             //set last Ids
-            this.lastAnnoncesIds = searchResponse.getAnnonces().stream()
+            lastAnnouncementsIds = announcements.stream()
                     .map(a -> a.getIdAnnonce())
                     .collect(Collectors.toList());
 
@@ -99,16 +62,51 @@ public class SeLogerClientService implements CommandLineRunner {
                 logger.info(">>>>>>>>>>>>>>>>>> {} notification(s) to send", notification.size());
                 mailService.notifyNewAnnouncement(notification);
             }
-
         }
-
     }
 
-    private List<Annonce> filterAdsByDatetime(List<Annonce> ads, Date date) {
-        return ads.stream()
-                .filter(annonce -> annonce.getDtCreation().after(lastAnnonceDatetime)
-                        || (annonce.getDtCreation().equals(lastAnnonceDatetime)
+    private List<Annonce> fetchAnnouncements(String request) {
+        Recherche searchResponse;
+        List<Annonce> announcements = new ArrayList<>();
+        int responseNbr = 0;
+        while (true) {
+            // SeLoger request
+            ResponseEntity<Recherche> response = restTemplate
+                    .exchange(request, HttpMethod.GET, null, Recherche.class);
+
+            logger.info("Response Status: {}", response.getStatusCodeValue());
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                logger.error("Failed : HTTP error code : {}", response.getStatusCodeValue());
+                break;
+            }
+
+            logger.info("Response n° {}:", ++responseNbr);
+            searchResponse = response.getBody();
+            logger.info("{} announcements retrieved from total of {}",
+                    searchResponse.getAnnonces().size(),
+                    searchResponse.getNbTrouvees());
+
+            announcements.addAll(searchResponse.getAnnonces());
+
+            if (searchResponse.getPageSuivante() == null) {
+                break;
+            }
+            request = searchResponse.getPageSuivante();
+        }
+        return announcements;
+    }
+
+    private List<Annonce> filterAnnouncementsByDatetime(List<Annonce> Announcements, Date datetime, List<String> lastAnnoncesIds) {
+        return Announcements.stream()
+                .filter(annonce -> annonce.getDtCreation().after(datetime)
+                        || (annonce.getDtCreation().equals(datetime)
                         && !lastAnnoncesIds.contains(annonce.getIdAnnonce())))
+                .collect(Collectors.toList());
+    }
+
+    private List<Annonce> filterAnnouncementsExcludingByIds(List<Annonce> Announcements, List<String> idsToExclude) {
+        return Announcements.stream()
+                .filter(a -> !idsToExclude.contains(a.getIdAnnonce()))
                 .collect(Collectors.toList());
     }
 
