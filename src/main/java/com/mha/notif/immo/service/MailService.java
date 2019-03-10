@@ -10,17 +10,7 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Properties;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -79,51 +69,6 @@ public class MailService {
             logger.info("Mail response headers", response.getHeaders());
         } catch (IOException ex) {
             logger.error("Error sending mail with SendGrid", ex);
-        }
-
-    }
-
-    private void sendJavaMail(String subject, String body) {
-
-        final String fromEmail = "m.hakka@outlook.com";
-        final String password = "";
-        final String toEmail = "m.hakka@outlook.com";
-
-        Properties props = System.getProperties();
-        props.put("mail.smtp.host", "smtp-mail.outlook.com");
-        props.put("mail.smtp.auth", "true");
-
-        //TLS
-        props.put("mail.smtp.port", "587");
-        props.put("mail.smtp.starttls.enable", "true");
-
-        //SSL
-        /*props.put("mail.smtp.socketFactory.port", "465"); //SSL Port
-        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
-        props.put("mail.smtp.port", "465"); //SMTP Port*/
-        Authenticator auth = new Authenticator() {
-            //override the getPasswordAuthentication method
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(fromEmail, password);
-            }
-        };
-
-        Session session = Session.getInstance(props, auth);
-
-        try {
-            MimeMessage msg = new MimeMessage(session);
-            //set message headers
-            msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
-            msg.addHeader("format", "flowed");
-            msg.addHeader("Content-Transfer-Encoding", "8bit");
-            msg.setFrom(new InternetAddress(fromEmail, "NoReply-mha"));
-            msg.setSubject(subject, "UTF-8");
-            msg.setText(body, "UTF-8", "html");
-            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
-            Transport.send(msg);
-
-        } catch (MessagingException | UnsupportedEncodingException ex) {
-            logger.error(ex.getMessage(), ex);
         }
     }
 }
