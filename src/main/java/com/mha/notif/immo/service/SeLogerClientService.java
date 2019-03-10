@@ -28,15 +28,15 @@ public class SeLogerClientService implements CommandLineRunner {
     @Autowired
     private MailService mailService;
 
-    private Date lastAnnonce;
+    private Date lastAnnonceDatetime;
     private List<String> lastAnnoncesIds;
     private Recherche searchResponse;
 
     public void start() {
-        logger.info("Starting the SeLoger ads retrieval service");
+        //logger.info("Starting the SeLoger ads retrieval service");
         mailService.notifyServiceStart();
-        
-        this.lastAnnonce = new Date();
+
+        this.lastAnnonceDatetime = new Date();
         this.lastAnnoncesIds = new ArrayList<>();
 
         while (true) {
@@ -47,32 +47,48 @@ public class SeLogerClientService implements CommandLineRunner {
             } catch (Exception e) {
                 logger.error("thread sleep error", e);
             }
+            
+            logger.info(">>>>>>>>>>>> Call to SeLoger Web Service... <<<<<<<<<<<<");
+            boolean moreResult = true;
+            List<Annonce> allAnnouncements = new ArrayList<>();
+            String request = SEARCH_URL;
+            int responseNbr = 0;
+            while (moreResult) {
+                // SeLoger request
+                ResponseEntity<Recherche> response = restTemplate
+                        .exchange(request, HttpMethod.GET, null, Recherche.class);
 
-            // SeLoger request
-            ResponseEntity<Recherche> response = restTemplate
-                    .exchange(SEARCH_URL, HttpMethod.GET, null, Recherche.class);
+                logger.info("Response Status: {}", response.getStatusCodeValue());
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    logger.error("Failed : HTTP error code : {}", response.getStatusCodeValue());
+                    break;
+                }
+                
+                logger.info("Response n° {}:", ++responseNbr);
+                searchResponse = response.getBody();
+                logger.info("{} announcements retrieved from total of {}", 
+                        searchResponse.getAnnonces().size(), 
+                        searchResponse.getNbTrouvees());
 
-            logger.info("Status: {}", response.getStatusCodeValue());
-
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                logger.error("Failed : HTTP error code : {}", response.getStatusCodeValue());
-                continue;
+                allAnnouncements.addAll(searchResponse.getAnnonces());
+                
+                if (searchResponse.getPageSuivante() == null) 
+                    moreResult = false;
+                
+                request = searchResponse.getPageSuivante();
             }
+            
+            if (allAnnouncements.isEmpty()) 
+                continue;
 
-            searchResponse = response.getBody();
-            logger.info("Number of announcements found: {}", searchResponse.getNbTrouvees());
-            logger.info("Number of announcements treated: {}", searchResponse.getAnnonces().size());
+            //filter announcements by date of last announcement
+            List<Annonce> notification = filterAdsByDatetime(allAnnouncements, lastAnnonceDatetime);
 
-            List<Annonce> notification = searchResponse.getAnnonces().stream()
-                    .filter(annonce -> annonce.getDtCreation().after(lastAnnonce)
-                            || (annonce.getDtCreation().equals(lastAnnonce)
-                            && !lastAnnoncesIds.contains(annonce.getIdAnnonce())))
-                    .collect(Collectors.toList());
             //set last annonce date
-            lastAnnonce = searchResponse.getAnnonces().stream()
+            lastAnnonceDatetime = searchResponse.getAnnonces().stream()
                     .map(a -> a.getDtCreation())
                     .max(Date::compareTo).get();
-            logger.info("Date of last annonce: {}", lastAnnonce);
+            logger.info("Date of last annonce: {}", lastAnnonceDatetime);
             //set last Ids
             this.lastAnnoncesIds = searchResponse.getAnnonces().stream()
                     .map(a -> a.getIdAnnonce())
@@ -86,6 +102,14 @@ public class SeLogerClientService implements CommandLineRunner {
 
         }
 
+    }
+
+    private List<Annonce> filterAdsByDatetime(List<Annonce> ads, Date date) {
+        return ads.stream()
+                .filter(annonce -> annonce.getDtCreation().after(lastAnnonceDatetime)
+                        || (annonce.getDtCreation().equals(lastAnnonceDatetime)
+                        && !lastAnnoncesIds.contains(annonce.getIdAnnonce())))
+                .collect(Collectors.toList());
     }
 
     @Override

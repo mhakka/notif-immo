@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Recherche {
     
     private int nbTrouvees;
+    private String pageSuivante;
     
     private List<Annonce> annonces;
 
@@ -38,6 +39,15 @@ public class Recherche {
     @XmlElement(name="annonce")
     public void setAnnonces(List<Annonce> annonces) {
         this.annonces = annonces;
+    }
+
+    public String getPageSuivante() {
+        return pageSuivante;
+    }
+    
+    @XmlElement
+    public void setPageSuivante(String pageSuivante) {
+        this.pageSuivante = pageSuivante;
     }
     
     
