@@ -1,7 +1,7 @@
-
 package com.mha.notif.immo.service;
 
 import com.mha.notif.immo.model.Annonce;
+import com.mha.notif.immo.model.Photo;
 import com.sendgrid.Content;
 import com.sendgrid.Email;
 import com.sendgrid.Mail;
@@ -36,6 +36,10 @@ public class MailService {
     public void notifyNewAnnouncement(List<Annonce> notifications) {
         String body = "";
         for (Annonce annonce : notifications) {
+            if (annonce.getPhotos() != null && !annonce.getPhotos().isEmpty()) {
+                Photo firstPhoto = annonce.getPhotos().get(0);
+                body += "<img src= '" + firstPhoto.getStdUrl() + "' alt='" + firstPhoto.getTitre() + "'><br>";
+            }
             body += "<a href= '" + annonce.getPermaLien() + "'>" + annonce.getPermaLien() + "</a><br>";
             body += "Agence: " + annonce.getContact().getNom() + "<br>";
             body += "Titre: " + annonce.getTitre() + "<br>";
@@ -45,7 +49,7 @@ public class MailService {
             body += "Code Postal: " + annonce.getCp() + "<br>";
             body += "Prix: " + annonce.getPrix() + " " + annonce.getPrixUnite() + "<br>";
             if (!StringUtils.isEmpty(annonce.getLatitude()) && !StringUtils.isEmpty(annonce.getLongitude())) {
-                body += "Position: <a href= 'https://www.google.com/maps/?q="+ annonce.getLatitude()+","+ annonce.getLongitude()+"'>Lien Google Map</a><br>";
+                body += "Position: <a href= 'https://www.google.com/maps/?q=" + annonce.getLatitude() + "," + annonce.getLongitude() + "'>Lien Google Map</a><br>";
             }
             body += "<br><hr>";
         }
